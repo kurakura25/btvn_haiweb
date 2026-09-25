@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # 1. NGINX - Web Server
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/html:/usr/share/nginx/html
+    restart: unless-stopped
+    networks:
+      - server_network
+
+  # 2. NODE-RED - Lập trình luồng IoT
+  nodered:
+    image: nodered/node-red:latest
+    container_name: nodered
+    ports:
+      - "1880:1880"
+    volumes:
+      - nodered-data:/data
+    restart: unless-stopped
+    networks:
+      - server_network
+
+  # 3. MARIADB - Cơ sở dữ liệu
+  mariadb:
+    image: mariadb:10.11
+    container_name: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: hai
+      MYSQL_DATABASE: my_database
+      MYSQL_USER: hai
+   volumes:
+      - mariadb-data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - server_network
+
+  # 4. PHPMYADMIN - Quản lý Database
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mariadb
+      MYSQL_ROOT_PASSWORD: hai
+    depends_on:
+      - mariadb
+    restart: unless-stopped
+    networks:
+      - server_network
+
+  # 5. CLOUDFLARED - Đưa web ra ngoài Internet
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    command: tunnel --no-autoupdate run --token eyJhIjoiNDUxNThjZWMzMjdlZGRlMWE5ZTE5MDliZWFiZTllYmQiLCJ0IjoiZjM5NDcyYjUtNmMyMi00ZjdiLTk1MTItMjE5MzFiNDczYWI>
+    restart: unless-stopped
+    networks:
+      - server_network
+
+volumes:
+  nodered-data:
+  mariadb-data:
+
+networks:
+  server_network:
+    driver: bridge
