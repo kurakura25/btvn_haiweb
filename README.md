@@ -14,3 +14,10 @@ Cài đặt Ubutu trên máy ảo
 SSH vào máy ảo qua CMD
 
 ![Giao diện website](images/a2.png)
+
+Cài đặt docker
+
+![Giao diện website](images/a3.png)
+
+Cài đặt các dịch vụ docker: nginx, nodered, mariadb, phpmyadmin, cloudflared
+![Giao diện website](images/a4.png)
